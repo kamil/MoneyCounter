@@ -5,7 +5,6 @@
     <link href='http://fonts.googleapis.com/css?family=Merriweather:700' rel='stylesheet' type='text/css'>
     <style type="text/css">
         body {
-            font-family: 'Merriweather', serif;
             margin: 0;
         }
         .splash {
@@ -19,6 +18,7 @@
             position: fixed !important;
         }
         #money {
+            font-family: 'Merriweather', serif;
             margin: auto;
             position: absolute;
             top: 100px;
@@ -53,7 +53,7 @@
     </div>
 
     <div class="options">
-        <input type="number" id="month" min="1" max="50000" pattern="[0-9]*" value="1000" />
+        <input type="number" id="sallary" min="1" max="50000" pattern="[0-9]*" data-default="1000" />
     </div>
 
     <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/accounting.js/0.4.1/accounting.min.js"></script>
@@ -64,14 +64,41 @@
         (function() {
             accounting.settings.currency.format = "%v %s";
 
+            var inputs = document.getElementsByTagName("input")
+
+            function saveSettings() {
+                
+                for (var index = inputs.length; index--; ) {
+                    
+                    var input = inputs[index];
+
+                    if (input.value === '') {
+                        if (localStorage[input.id]) {
+                            input.value = localStorage[input.id];
+                        } else {
+                            input.value = input.getAttribute('data-default');
+                        }
+                        input.addEventListener("change", saveSettings);
+                    } else {
+                        localStorage[input.id] = input.value;
+                    } 
+
+                }
+            }
+
+            
+
             function count() {
                 document.getElementById('money').innerHTML = accounting.formatMoney(
-                    moment().diff(moment().startOf('month'),'seconds') * (parseInt(document.getElementById('month').value)/(30*24*3600)),
+                    moment().diff(moment().startOf('month'),'seconds') * (parseInt(document.getElementById('sallary').value)/(30*24*3600)),
                     "", 2, ".", ",");
             }
 
-            count();
+            
             setInterval(count,1000);
+
+            saveSettings();
+            count();
         })();
     </script>
 
